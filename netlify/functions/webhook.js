@@ -9,10 +9,11 @@ exports.handler = async (event, context) => {
 
         if (queryParams['hub.mode'] === 'subscribe' && queryParams['hub.verify_token'] === verifyToken) {
             console.log("WebHook Verificado com Sucesso!");
-            return {
-                statusCode: 200,
-                body: queryParams['hub.challenge'] // A Meta exige que a gente devolva esse número
-            };
+           return {
+    statusCode: 200,
+    headers: { "Content-Type": "text/plain" },
+    body: queryParams['hub.challenge']
+};
         }
         return { statusCode: 403, body: 'Falha na verificação de segurança' };
     }
