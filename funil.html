@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ar da Magia - Atendimentos</title>
+    <style>
+        body { 
+            background-color: #0d0c13; 
+            color: #d1d5db; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Sidebar (Menu Lateral) */
+        .sidebar {
+            width: 250px;
+            background-color: #111018;
+            border-right: 1px solid #2a2044;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fce7f3;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .menu-item {
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        .menu-item:hover {
+            background-color: #1e1933;
+            color: #fcd34d;
+        }
+        .menu-item.active {
+            background-color: #1e1933;
+            color: #fcd34d;
+            border-left: 3px solid #f59e0b;
+        }
+
+        /* Área Principal */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { margin: 0; color: #ffffff; font-size: 28px; }
+        .btn-add { 
+            background-color: #f59e0b; 
+            color: #000; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-add:hover { background-color: #d97706; }
+
+        /* Kanban Board */
+        .kanban { 
+            display: flex; 
+            gap: 20px; 
+            flex: 1;
+            align-items: flex-start;
+        }
+        .coluna { 
+            background-color: #15131f; 
+            border-radius: 12px; 
+            width: 25%; 
+            padding: 18px; 
+            border-top: 4px solid #8b5cf6; 
+            min-height: 500px; 
+            border-left: 1px solid #2a2044;
+            border-right: 1px solid #2a2044;
+            border-bottom: 1px solid #2a2044;
+        }
+        .coluna h3 { 
+            margin: 0 0 20px 0; 
+            font-size: 16px; 
+            color: #fce7f3; 
+        }
+        .card { 
+            background-color: #0d0c13; 
+            padding: 16px; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            border: 1px solid #2a2044; 
+            position: relative; 
+        }
+        .card h4 { margin: 0 0 6px 0; font-size: 15px; color: #fcd34d; padding-right: 25px; }
+        .card .info-sub { margin: 0 0 6px 0; font-size: 13px; color: #9ca3af; }
+        .card .badge-servico { 
+            background-color: #2e1065; 
+            color: #c4b5fd; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            display: inline-block; 
+        }
+        .card .agendamento-tag {
+            color: #fcd34d;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .card .valor-tag { color: #10b981; font-weight: bold; font-size: 13px; margin-top: 6px; margin-bottom: 10px; }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn-servico {
+            background-color: #2a2044;
+            color: #fce7f3;
+            border: 1px solid #8b5cf6;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-servico:hover { background-color: #3b0764; }
+
+        .select-mover { 
+            flex: 1;
+            background: #15131f; 
+            color: #d1d5db; 
+            border: 1px solid #2a2044; 
+            padding: 5px; 
+            border-radius: 6px; 
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .btn-excluir { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            background: none; 
+            border: none; 
+            color: #ef4444; 
+            cursor: pointer; 
+            font-size: 15px; 
+        }
+        .btn-excluir:hover { color: #dc2626; }
+
+        /* Modais */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background-color: #15131f;
+            border: 1px solid #8b5cf6;
+            border-radius: 12px;
+            width: 440px;
+            padding: 28px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-card h2 { margin-top: 0; color: #ffffff; font-size: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; color: #c4b5fd; margin-bottom: 6px; font-weight: bold; }
+        .form-row { display: flex; gap: 12px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            background-color: #0d0c13;
+            border: 1px solid #2a2044;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #f59e0b; outline: none; }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+        .btn-cancel { background-color: transparent; color: #9ca3af; border: 1px solid #2a2044; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+        .btn-save { background-color: #8b5cf6; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-save:hover { background-color: #7c3aed; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navegável -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">🌙</div>
+            Ar da Magia
+        </div>
+        <div class="menu-item" onclick="window.location.href='index.html'"><span>▦</span> Visão Geral</div>
+        <div class="menu-item active" onclick="window.location.href='funil.html'"><span>💬</span> Atendimentos</div>
+        <div class="menu-item"><span>📖</span> Prontuários</div>
+        <div class="menu-item"><span>🔥</span> Trabalhos Mágicos</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Funil de Atendimentos</h1>
+                <p style="color: #9ca3af; margin-top: 5px; font-size: 14px;">Gerencie seus consulentes e acompanhe o histórico dos atendimentos.</p>
+            </div>
+            <button class="btn-add" onclick="abrirModalNovo()">+ Adicionar Cliente</button>
+        </div>
+
+        <div class="kanban">
+            <div class="coluna" id="col-novo"><h3>Novo Contato</h3></div>
+            <div class="coluna" id="col-negociacao"><h3>Em Negociação</h3></div>
+            <div class="coluna" id="col-pago"><h3>Agendado / Pago</h3></div>
+            <div class="coluna" id="col-pos"><h3>Resgate / Pós-venda</h3></div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: Novo Consulente -->
+    <div class="modal-overlay" id="modal-novo-cliente">
+        <div class="modal-card">
+            <h2>🌙 Novo Consulente</h2>
+            <form id="form-novo-cliente" onsubmit="salvarNovoCliente(event)">
+                <div class="form-group">
+                    <label>Nome Completo *</label>
+                    <input type="text" id="input-nome" placeholder="Ex: Maria da Silva" required>
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp *</label>
+                    <input type="text" id="input-whats" placeholder="Ex: (11) 99999-8888" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tabela de Serviços Oficial</label>
+                    <select onchange="aplicarPreset('novo', this.value)">
+                        <option value="">-- Escolha um serviço padrão --</option>
+                        <option value="Leitura Mensal">Leitura Mensal - R$ 65,00</option>
+                        <option value="Leitura Completa">Leitura Completa - a partir de R$ 150,00</option>
+                        <option value="1 Pergunta">1 Pergunta - R$ 40,00</option>
+                        <option value="2 Perguntas">2 Perguntas - R$ 80,00</option>
+                        <option value="3 Perguntas">3 Perguntas - R$ 85,00</option>
+                        <option value="5 Perguntas">5 Perguntas - R$ 99,00</option>
+                        <option value="Análise Amorosa">Análise Amorosa - R$ 150,00</option>
+                        <option value="Análise Profissional">Análise Profissional - R$ 105,00</option>
+                        <option value="Adoçamento">Adoçamento - R$ 310,00</option>
+                        <option value="Abertura de Caminhos">Abertura de Caminhos - R$ 430,00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do Serviço (Editável)</label>
+                    <input type="text" id="input-servico" placeholder="Ex: Mesa Real, Tiragem Express...">
+                </div>
+                <div class="form-group">
+                    <label>Valor R$ (Editável)</label>
+                    <input type="number" step="0.01" id="input-valor" placeholder="0.00">
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Data Agendada</label>
+                        <input type="date" id="input-data">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Horário</label>
+                        <input type="time" id="input-hora">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="fecharModalNovo()">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar Consulente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Adicionar Novo Serviço -->
+    <div class="modal-overlay" id="modal-add-servico">
+        <div class="modal-card">
+            <h2>🔮 Novo Serviço / Atendimento</h2>
+            <p style="color: #c4b5fd; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">
+                Adicionando histórico para: <strong id="nome-cliente-servico" style="color: #fff;"></strong>
+            </p>
+            <form id="form-add-servico" onsubmit="salvarNovoServico(event)">
+                
+                <div class="form-group">
+                    <label>Tabela de Serviços Oficial</label>
+                    <select onchange="aplicarPreset('servico', this.value)">
+                        <option value="">-- Escolha um serviço padrão --</option>
+                        <option value="Leitura Mensal">Leitura Mensal - R$ 65,00</option>
+                        <option value="Leitura Completa">Leitura Completa - a partir de R$ 150,00</option>
+                        <option value="1 Pergunta">1 Pergunta - R$ 40,00</option>
+                        <option value="2 Perguntas">2 Perguntas - R$ 80,00</option>
+                        <option value="3 Perguntas">3 Perguntas - R$ 85,00</option>
+                        <option value="5 Perguntas">5 Perguntas - R$ 99,00</option>
+                        <option value="Análise Amorosa">Análise Amorosa - R$ 150,00</option>
+                        <option value="Análise Profissional">Análise Profissional - R$ 105,00</option>
+                        <option value="Adoçamento">Adoçamento - R$ 310,00</option>
+                        <option value="Abertura de Caminhos">Abertura de Caminhos - R$ 430,00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do Serviço / Trabalho *</label>
+                    <input type="text" id="input-novo-servico-nome" placeholder="Ex: Limpeza com Ervas, Ritual" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor R$ (Editável) *</label>
+                    <input type="number" step="0.01" id="input-novo-servico-valor" placeholder="Ex: 150.00" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Data *</label>
+                        <input type="date" id="input-novo-servico-data" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Horário</label>
+                        <input type="time" id="input-novo-servico-hora">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="fecharModalServico()">Cancelar</button>
+                    <button type="submit" class="btn-save">Registrar Serviço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs e Lógica -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoiZwpKZj4tF3i8hVxtc3EpsJcrg9Gstk",
+            authDomain: "ar-da-magia---crm.firebaseapp.com",
+            projectId: "ar-da-magia---crm",
+            storageBucket: "ar-da-magia---crm.firebasestorage.app",
+            messagingSenderId: "682034206586",
+            appId: "1:682034206586:web:76a4970fbf6afb5ac668c3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        signInAnonymously(auth).catch((error) => console.error("Erro no login anônimo:", error));
+
+        let clienteAtualParaServico = null;
+
+        const tabelaPrecos = {
+            "Leitura Mensal": 65.00,
+            "Leitura Completa": 150.00,
+            "1 Pergunta": 40.00,
+            "2 Perguntas": 80.00,
+            "3 Perguntas": 85.00,
+            "5 Perguntas": 99.00,
+            "Análise Amorosa": 150.00,
+            "Análise Profissional": 105.00,
+            "Adoçamento": 310.00,
+            "Abertura de Caminhos": 430.00
+        };
+
+        window.aplicarPreset = (tipoModal, servicoNome) => {
+            if (!servicoNome) return;
+            const valorSugerido = tabelaPrecos[servicoNome] || 0;
+
+            if (tipoModal === 'novo') {
+                document.getElementById("input-servico").value = servicoNome;
+                if (valorSugerido > 0) {
+                    document.getElementById("input-valor").value = valorSugerido.toFixed(2);
+                }
+            } else if (tipoModal === 'servico') {
+                document.getElementById("input-novo-servico-nome").value = servicoNome;
+                if (valorSugerido > 0) {
+                    document.getElementById("input-novo-servico-valor").value = valorSugerido.toFixed(2);
+                }
+            }
+        };
+
+        window.abrirModalNovo = () => { document.getElementById("modal-novo-cliente").style.display = "flex"; };
+        window.fecharModalNovo = () => {
+            document.getElementById("modal-novo-cliente").style.display = "none";
+            document.getElementById("form-novo-cliente").reset();
+        };
+
+        window.abrirModalServico = (id, nome) => {
+            clienteAtualParaServico = id;
+            document.getElementById("nome-cliente-servico").innerText = nome;
+            document.getElementById("modal-add-servico").style.display = "flex";
+        };
+        window.fecharModalServico = () => {
+            document.getElementById("modal-add-servico").style.display = "none";
+            document.getElementById("form-add-servico").reset();
+            clienteAtualParaServico = null;
+        };
+
+        window.salvarNovoCliente = async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("input-nome").value;
+            const whatsapp = document.getElementById("input-whats").value;
+            const servico = document.getElementById("input-servico").value;
+            const valor = parseFloat(document.getElementById("input-valor").value) || 0;
+            const dataAtendimento = document.getElementById("input-data").value;
+            const horaAtendimento = document.getElementById("input-hora").value;
+
+            const novoServico = servico ? [{
+                servico: servico,
+                valor: valor,
+                data: dataAtendimento || new Date().toISOString().split('T')[0],
+                hora: horaAtendimento || "A combinar"
+            }] : [];
+
+            await addDoc(collection(db, "clientes"), {
+                nome: nome,
+                whatsapp: whatsapp,
+                status: "Novo Contato",
+                servicos: novoServico,
+                dataCadastro: new Date()
+            });
+
+            fecharModalNovo();
+        };
+
+        window.salvarNovoServico = async (e) => {
+            e.preventDefault();
+            if (!clienteAtualParaServico) return;
+
+            const servico = document.getElementById("input-novo-servico-nome").value;
+            const valor = parseFloat(document.getElementById("input-novo-servico-valor").value) || 0;
+            const dataAtendimento = document.getElementById("input-novo-servico-data").value || new Date().toISOString().split('T')[0];
+            const horaAtendimento = document.getElementById("input-novo-servico-hora").value || "A combinar";
+
+            await updateDoc(doc(db, "clientes", clienteAtualParaServico), {
+                servicos: arrayUnion({
+                    servico: servico,
+                    valor: valor,
+                    data: dataAtendimento,
+                    hora: horaAtendimento
+                })
+            });
+
+            fecharModalServico();
+        };
+
+        window.moverCliente = async (id, novoStatus) => {
+            await updateDoc(doc(db, "clientes", id), { status: novoStatus });
+        };
+
+        window.excluirCliente = async (id) => {
+            if(confirm("Tem certeza que deseja apagar este consulente do sistema?")) {
+                await deleteDoc(doc(db, "clientes", id));
+            }
+        };
+
+        // Leitura em Tempo Real
+        onSnapshot(collection(db, "clientes"), (snapshot) => {
+            const colNovo = document.getElementById("col-novo");
+            const colNeg = document.getElementById("col-negociacao");
+            const colPago = document.getElementById("col-pago");
+            const colPos = document.getElementById("col-pos");
+
+            if (!colNovo) return;
+
+            colNovo.innerHTML = "<h3>Novo Contato</h3>";
+            colNeg.innerHTML = "<h3>Em Negociação</h3>";
+            colPago.innerHTML = "<h3>Agendado / Pago</h3>";
+            colPos.innerHTML = "<h3>Resgate / Pós-venda</h3>";
+
+            snapshot.forEach((docSnap) => {
+                const cliente = docSnap.data();
+                const id = docSnap.id;
+                
+                const servicos = cliente.servicos || [];
+                const totalInvestido = servicos.reduce((acc, curr) => acc + (curr.valor || 0), 0);
+
+                // MOSTRA TODOS OS SERVIÇOS DO CLIENTE NO CARD
+                let servicosListaHTML = "";
+                if (servicos.length > 0) {
+                    servicos.forEach(s => {
+                        const dataFormatada = s.data ? s.data.split('-').reverse().join('/') : "";
+                        const horaFormatada = s.hora ? `às ${s.hora}` : "";
+                        const agendamentoTxt = dataFormatada ? ` 📅 ${dataFormatada} ${horaFormatada}` : "";
+                        servicosListaHTML += `
+                            <div style="margin-bottom: 6px;">
+                                <span class="badge-servico">🔮 ${s.servico}</span>
+                                ${agendamentoTxt ? `<div class="agendamento-tag" style="display:inline-block; margin-left:4px;">${agendamentoTxt}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                } else {
+                    servicosListaHTML = `<span class="badge-servico" style="background:#1f2937; color:#9ca3af;">Sem serviço ativo</span>`;
+                }
+
+                const valorHTML = totalInvestido > 0 
+                    ? `<div class="valor-tag">💰 Total: R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>`
+                    : `<div class="valor-tag" style="color:#6b7280;">Aguardando orçamento</div>`;
+
+                const nomeLimpo = (cliente.nome || "Consulente").replace(/'/g, "\\'");
+
+                const cardHTML = `
+                    <div class="card">
+                        <h4>${cliente.nome || 'Consulente'}</h4>
+                        <p class="info-sub">📞 ${cliente.whatsapp || ''}</p>
+                        ${servicosListaHTML}
+                        ${valorHTML}
+                        
+                        <button class="btn-excluir" onclick="excluirCliente('${id}')">🗑️</button>
+
+                        <div class="card-actions">
+                            <button class="btn-servico" onclick="abrirModalServico('${id}', '${nomeLimpo}')">+ Serviço</button>
+                            <select class="select-mover" onchange="moverCliente('${id}', this.value)">
+                                <option value="Novo Contato" ${cliente.status === 'Novo Contato' ? 'selected' : ''}>Novo Contato</option>
+                                <option value="Em Negociação" ${cliente.status === 'Em Negociação' ? 'selected' : ''}>Em Negociação</option>
+                                <option value="Agendado / Pago" ${cliente.status === 'Agendado / Pago' ? 'selected' : ''}>Agendado / Pago</option>
+                                <option value="Resgate / Pós-venda" ${cliente.status === 'Resgate / Pós-venda' ? 'selected' : ''}>Resgate / Pós-venda</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                if (cliente.status === "Novo Contato") {
+                    colNovo.innerHTML += cardHTML;
+                } else if (cliente.status === "Em Negociação") {
+                    colNeg.innerHTML += cardHTML;
+                } else if (cliente.status === "Agendado / Pago") {
+                    colPago.innerHTML += cardHTML;
+                } else if (cliente.status === "Resgate / Pós-venda") {
+                    colPos.innerHTML += cardHTML;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ar da Magia - Visão Geral</title>
+    <style>
+        body { 
+            background-color: #0d0c13; 
+            color: #d1d5db; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Sidebar (Menu Lateral) */
+        .sidebar {
+            width: 250px;
+            background-color: #111018;
+            border-right: 1px solid #2a2044;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fce7f3;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .menu-item {
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        .menu-item:hover {
+            background-color: #1e1933;
+            color: #fcd34d;
+        }
+        .menu-item.active {
+            background-color: #1e1933;
+            color: #fcd34d;
+            border-left: 3px solid #f59e0b;
+        }
+
+        /* Área Principal */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { margin: 0; color: #ffffff; font-size: 28px; }
+        .header p { margin: 5px 0 0 0; color: #9ca3af; font-size: 14px; }
+        
+        .search-bar {
+            background-color: #15131f;
+            border: 1px solid #2a2044;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #fff;
+            width: 280px;
+        }
+
+        /* KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background-color: #15131f;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #2a2044;
+        }
+        .kpi-header { display: flex; align-items: center; gap: 8px; color: #a78bfa; font-size: 14px; margin-bottom: 15px; }
+        .kpi-value { font-size: 32px; font-weight: bold; color: #ffffff; margin: 0 0 10px 0; }
+        .kpi-trend { font-size: 12px; }
+        .trend-up { color: #10b981; }
+        .trend-alert { color: #f59e0b; }
+
+        /* Grid de Painéis */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel {
+            background-color: #15131f;
+            border-radius: 12px;
+            border: 1px solid #2a2044;
+            padding: 24px;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .panel-header h3 { margin: 0; font-size: 18px; color: #ffffff; display: flex; align-items: center; gap: 10px; }
+        .tag-agendado { background-color: #3b0764; color: #d8b4fe; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid #8b5cf6; }
+        .tag-radar { background-color: #451a03; color: #fcd34d; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        
+        .list-item {
+            background-color: #0d0c13;
+            border: 1px solid #2a2044;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-details h4 { margin: 0 0 5px 0; color: #ffffff; font-size: 15px; }
+        .item-details p { margin: 0; color: #9ca3af; font-size: 13px; }
+        .badge { background-color: #2e1065; color: #c4b5fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-top: 6px; display: inline-block; }
+        .time-highlight { color: #fcd34d; font-size: 13px; font-weight: bold; text-align: right; }
+        
+        .btn-whats {
+            background-color: #059669;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-whats:hover { background-color: #047857; }
+    </style>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoiZwpKZj4tF3i8hVxtc3EpsJcrg9Gstk",
+            authDomain: "ar-da-magia---crm.firebaseapp.com",
+            projectId: "ar-da-magia---crm",
+            storageBucket: "ar-da-magia---crm.firebasestorage.app",
+            messagingSenderId: "682034206586",
+            appId: "1:682034206586:web:76a4970fbf6afb5ac668c3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        signInAnonymously(auth).catch((error) => console.error("Erro de Auth:", error));
+
+        // Leitura em Tempo Real e Cálculos Automáticos
+        onSnapshot(collection(db, "clientes"), (snapshot) => {
+            let totalConsulentes = snapshot.size;
+            let faturamentoTotal = 0;
+            let totalAgendados = 0;
+            let totalPosVenda = 0;
+
+            let containerAgendamentos = document.getElementById("lista-agendamentos");
+            let containerRadar = document.getElementById("lista-radar");
+
+            if (containerAgendamentos) containerAgendamentos.innerHTML = "";
+            if (containerRadar) containerRadar.innerHTML = "";
+
+            const hoje = new Date();
+
+            snapshot.forEach((docSnap) => {
+                const cliente = docSnap.data();
+                const servicos = cliente.servicos || [];
+                
+                // Soma Faturamento Real
+                servicos.forEach(s => {
+                    faturamentoTotal += (s.valor || 0);
+                });
+
+                // 1. PROCESSAR AGENDAMENTOS ("Agendado / Pago")
+                if (cliente.status === "Agendado / Pago") {
+                    if (servicos.length > 0) {
+                        servicos.forEach(s => {
+                            totalAgendados++;
+                            const dataFormatada = s.data ? s.data.split('-').reverse().join('/') : "Data a definir";
+                            const horaFormatada = s.hora ? `às ${s.hora}` : "Horário a definir";
+
+                            if (containerAgendamentos) {
+                                containerAgendamentos.innerHTML += `
+                                    <div class="list-item">
+                                        <div class="item-details">
+                                            <h4>${cliente.nome || 'Consulente'}</h4>
+                                            <span class="badge">🔮 ${s.servico || 'Atendimento'}</span>
+                                            <p style="margin-top: 6px;">📞 ${cliente.whatsapp || ''}</p>
+                                        </div>
+                                        <div class="time-highlight">
+                                            📅 ${dataFormatada}<br>
+                                            ⏰ ${horaFormatada}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    } else {
+                        totalAgendados++;
+                        if (containerAgendamentos) {
+                            containerAgendamentos.innerHTML += `
+                                <div class="list-item">
+                                    <div class="item-details">
+                                        <h4>${cliente.nome || 'Consulente'}</h4>
+                                        <span class="badge" style="background:#1f2937; color:#9ca3af;">Sem serviço especificado</span>
+                                        <p style="margin-top: 6px;">📞 ${cliente.whatsapp || ''}</p>
+                                    </div>
+                                    <div class="time-highlight">
+                                        📅 A combinar
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+
+                // 2. PROCESSAR PÓS-VENDA / RESGATE
+                const ultimoServico = servicos.length > 0 ? servicos[servicos.length - 1] : null;
+                let ehPosVenda = cliente.status === "Resgate / Pós-venda";
+
+                if (!ehPosVenda && ultimoServico && ultimoServico.data) {
+                    const dataServico = new Date(ultimoServico.data + 'T00:00:00');
+                    const diffDias = Math.floor((hoje - dataServico) / (1000 * 60 * 60 * 24));
+                    if (diffDias >= 7) {
+                        ehPosVenda = true;
+                    }
+                }
+
+                if (ehPosVenda && containerRadar) {
+                    totalPosVenda++;
+                    const nomeCliente = cliente.nome || "Consulente";
+                    const servicoNome = ultimoServico ? ultimoServico.servico : "Atendimento";
+                    
+                    // Formata número de WhatsApp limpo
+                    const numWhats = (cliente.whatsapp || "").replace(/\D/g, "");
+                    const msgPadrao = encodeURIComponent(`Olá ${nomeCliente}! Tudo bem? Passando para saber como você sentiu as energias após o serviço de ${servicoNome}. Se precisar de algo, estou por aqui! 🌙✨`);
+                    const linkWhats = numWhats ? `https://wa.me/55${numWhats}?text=${msgPadrao}` : "#";
+
+                    containerRadar.innerHTML += `
+                        <div class="list-item">
+                            <div class="item-details">
+                                <h4>${nomeCliente}</h4>
+                                <span class="badge" style="background:#451a03; color:#fcd34d;">🔮 ${servicoNome}</span>
+                                <p style="margin-top: 8px; font-style: italic;">Acompanhamento de energia / Reengajamento.</p>
+                            </div>
+                            <div>
+                                ${numWhats ? `<a href="${linkWhats}" target="_blank" class="btn-whats">💬 Mandar Whats</a>` : `<span style="font-size:11px; color:#6b7280;">Sem Whats</span>`}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (containerAgendamentos && totalAgendados === 0) {
+                containerAgendamentos.innerHTML = `<p style="color: #6b7280; font-style: italic; font-size: 13px;">Nenhum atendimento agendado no momento.</p>`;
+            }
+
+            if (containerRadar && totalPosVenda === 0) {
+                containerRadar.innerHTML = `<p style="color: #6b7280; font-style: italic; font-size: 13px;">Nenhum consulente pendente no Radar de Pós-venda hoje.</p>`;
+            }
+
+            // Atualiza Cards KPIs no Topo
+            const elemTotal = document.getElementById("kpi-total-consulentes");
+            const elemFat = document.getElementById("kpi-faturamento");
+            const elemAg = document.getElementById("kpi-agendados");
+
+            if (elemTotal) elemTotal.innerText = totalConsulentes;
+            if (elemFat) elemFat.innerText = `R$ ${faturamentoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            if (elemAg) elemAg.innerText = totalAgendados;
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Sidebar Navegável -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">🌙</div>
+            Ar da Magia
+        </div>
+        <div class="menu-item active" onclick="window.location.href='index.html'"><span>▦</span> Visão Geral</div>
+        <div class="menu-item" onclick="window.location.href='funil.html'"><span>💬</span> Atendimentos</div>
+        <div class="menu-item"><span>📖</span> Prontuários</div>
+        <div class="menu-item"><span>🔥</span> Trabalhos Mágicos</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Visão Geral</h1>
+                <p>Bem-vinda ao painel de controle do Ar da Magia.</p>
+            </div>
+            <input type="text" class="search-bar" placeholder="🔍 Buscar consulente...">
+        </div>
+
+        <!-- KPIs em Tempo Real -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">👥 Total no Banco</div>
+                <div class="kpi-value" id="kpi-total-consulentes">0</div>
+                <div class="kpi-trend trend-up">Consulentes cadastrados</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">📅 Mesas Agendadas</div>
+                <div class="kpi-value" id="kpi-agendados">0</div>
+                <div class="kpi-trend trend-alert">Serviços confirmados</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">⭐ Conversão em Tiragem</div>
+                <div class="kpi-value">45%</div>
+                <div class="kpi-trend trend-up">+6 pts lead -> agendou</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">✨ Faturamento Real</div>
+                <div class="kpi-value" id="kpi-faturamento">R$ 0,00</div>
+                <div class="kpi-trend trend-up">Soma dos atendimentos</div>
+            </div>
+        </div>
+
+        <!-- Grid de Painéis Principais -->
+        <div class="bottom-grid">
+            
+            <!-- PAINEL 1: Próximos Agendamentos -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>📅 Próximos Agendamentos</h3>
+                    <span class="tag-agendado">CONFIRMADOS</span>
+                </div>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: -15px; margin-bottom: 20px;">Consulentes prontos para atendimento.</p>
+                
+                <div id="lista-agendamentos">
+                    <!-- Preenchido via Firebase em tempo real -->
+                </div>
+            </div>
+
+            <!-- PAINEL 2: Radar de Conexão -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>🔥 Radar de Conexão <span class="tag-radar">PÓS-VENDA</span></h3>
+                </div>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: -15px; margin-bottom: 20px;">Acompanhamento dinâmico e reengajamento de consulentes.</p>
+                
+                <div id="lista-radar">
+                    <!-- Preenchido via Firebase em tempo real -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
