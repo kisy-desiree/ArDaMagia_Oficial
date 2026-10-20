@@ -5,7 +5,7 @@ exports.handler = async (event, context) => {
         const queryParams = event.queryStringParameters;
         
         // Essa é a nossa senha secreta. Pode deixar assim mesmo.
-        const verifyToken = "raposa_magica_vip"; 
+        const verifyToken = "magia123"; 
 
         if (queryParams['hub.mode'] === 'subscribe' && queryParams['hub.verify_token'] === verifyToken) {
             console.log("WebHook Verificado com Sucesso!");
